@@ -1,0 +1,825 @@
+/* ==========================================================================
+   Wordle O'zbekcha (Uzbek Wordle) - Asosiy stillar
+   NYT Wordle dizayni va xususiyatlariga to'liq moslashtirilgan
+   ========================================================================== */
+
+:root {
+  /* Standart ranglar (Dark Theme asosida) */
+  --bg-primary: #121213;
+  --bg-secondary: #1a1a1b;
+  --text-primary: #ffffff;
+  --text-secondary: #818384;
+  --border-subtle: #3a3a3c;
+  --border-filled: #565758;
+
+  /* Wordle katak va klaviatura ranglari */
+  --color-correct: #538d4e;       /* Yashil */
+  --color-present: #b59f3b;       /* Sariq */
+  --color-absent: #3a3a3c;        /* Kulrang */
+  --color-empty: #121213;
+
+  --key-bg: #818384;
+  --key-text: #ffffff;
+  --key-bg-active: #9da0a2;
+
+  --modal-bg: #121213;
+  --modal-border: #2f2f31;
+  --switch-off: #3a3a3c;
+  --switch-on: #538d4e;
+
+  --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --header-height: 55px;
+}
+
+/* Yorug' mavzu (Light Theme) */
+body.light-theme {
+  --bg-primary: #ffffff;
+  --bg-secondary: #f6f7f8;
+  --text-primary: #1a1a1b;
+  --text-secondary: #787c7e;
+  --border-subtle: #d3d6da;
+  --border-filled: #878a8c;
+
+  --color-correct: #6aaa64;
+  --color-present: #c9b458;
+  --color-absent: #787c7e;
+  --color-empty: #ffffff;
+
+  --key-bg: #d3d6da;
+  --key-text: #1a1a1b;
+  --key-bg-active: #b5b8bb;
+
+  --modal-bg: #ffffff;
+  --modal-border: #e2e4e6;
+  --switch-off: #cccccc;
+  --switch-on: #6aaa64;
+}
+
+/* Yuqori kontrast rejimi (High Contrast Mode) */
+body.high-contrast {
+  --color-correct: #f5793a;       /* To'q sariq (Orange) */
+  --color-present: #85c0f9;       /* Havorang (Sky Blue) */
+  --switch-on: #f5793a;
+}
+
+/* Umumiy sozlamalar */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: var(--font-family);
+  overflow: hidden;
+  transition: background-color 0.25s ease, color 0.25s ease;
+}
+
+/* Asosiy konteyner */
+#game-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  max-width: 500px;
+  height: 100%;
+  margin: 0 auto;
+  position: relative;
+}
+
+/* Header (Yuqori panel) */
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  height: var(--header-height);
+  padding: 0 16px;
+  border-bottom: 1px solid var(--border-subtle);
+  flex-shrink: 0;
+}
+
+.header-left, .header-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.header-center {
+  text-align: center;
+}
+
+.game-title {
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: 0.15em;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.badge {
+  font-size: 11px;
+  padding: 2px 6px;
+  background-color: var(--color-correct);
+  color: #ffffff;
+  border-radius: 4px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+}
+
+.mode-label {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  margin-top: 2px;
+}
+
+.icon-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px;
+  border-radius: 50%;
+  transition: background-color 0.15s ease, transform 0.1s ease;
+}
+
+.icon-btn:hover {
+  background-color: rgba(128, 128, 128, 0.15);
+}
+
+.icon-btn:active {
+  transform: scale(0.92);
+}
+
+/* Xabarnomalar (Toasts) */
+.toast-container {
+  position: absolute;
+  top: 65px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  z-index: 1000;
+  pointer-events: none;
+  width: 90%;
+  max-width: 380px;
+}
+
+.toast {
+  background-color: var(--text-primary);
+  color: var(--bg-primary);
+  font-weight: 700;
+  font-size: 14px;
+  padding: 12px 18px;
+  border-radius: 6px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.35);
+  animation: toast-in 0.2s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+  pointer-events: auto;
+  text-align: center;
+}
+
+.toast.fade-out {
+  animation: toast-out 0.3s forwards ease;
+}
+
+@keyframes toast-in {
+  from { opacity: 0; transform: translateY(-15px) scale(0.9); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes toast-out {
+  from { opacity: 1; transform: translateY(0); }
+  to { opacity: 0; transform: translateY(-10px); }
+}
+
+/* O'yin maydoni (Board) */
+#board-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-grow: 1;
+  overflow: hidden;
+  width: 100%;
+  padding: 10px 0;
+}
+
+#board {
+  display: grid;
+  grid-template-rows: repeat(6, 1fr);
+  grid-gap: 5px;
+  width: 330px;
+  height: 396px;
+  max-width: 100%;
+  max-height: 100%;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  grid-gap: 5px;
+}
+
+.tile {
+  width: 100%;
+  height: 100%;
+  border: 2px solid var(--border-subtle);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 30px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--text-primary);
+  background-color: var(--color-empty);
+  border-radius: 2px;
+  perspective: 1000px;
+}
+
+.tile[data-state="active"] {
+  border-color: var(--border-filled);
+  animation: pop 0.1s ease-in-out;
+}
+
+.tile[data-state="correct"],
+.tile.correct {
+  background-color: var(--color-correct) !important;
+  border-color: var(--color-correct) !important;
+  color: #ffffff !important;
+}
+
+.tile[data-state="present"],
+.tile.present {
+  background-color: var(--color-present) !important;
+  border-color: var(--color-present) !important;
+  color: #ffffff !important;
+}
+
+.tile[data-state="absent"],
+.tile.absent {
+  background-color: var(--color-absent) !important;
+  border-color: var(--color-absent) !important;
+  color: #ffffff !important;
+}
+
+/* Kataklar animatsiyalari */
+@keyframes pop {
+  0% { transform: scale(0.9); }
+  50% { transform: scale(1.12); }
+  100% { transform: scale(1); }
+}
+
+.row.shake {
+  animation: shake 0.5s ease;
+}
+
+@keyframes shake {
+  10%, 90% { transform: translateX(-3px); }
+  20%, 80% { transform: translateX(5px); }
+  30%, 50%, 70% { transform: translateX(-6px); }
+  40%, 60% { transform: translateX(6px); }
+}
+
+.tile.bounce {
+  animation: bounce 0.5s ease;
+}
+
+@keyframes bounce {
+  0%, 20% { transform: translateY(0); }
+  40% { transform: translateY(-26px); }
+  50% { transform: translateY(0); }
+  60% { transform: translateY(-12px); }
+  80% { transform: translateY(0); }
+}
+
+.tile.flip {
+  animation: flip 0.5s ease forwards;
+}
+
+@keyframes flip {
+  0% {
+    transform: rotateX(0deg);
+  }
+  50% {
+    transform: rotateX(90deg);
+  }
+  100% {
+    transform: rotateX(0deg);
+  }
+}
+
+/* Virtual klaviatura (Keyboard) */
+#keyboard {
+  width: 100%;
+  max-width: 500px;
+  padding: 0 8px 14px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  flex-shrink: 0;
+}
+
+.keyboard-row {
+  display: flex;
+  width: 100%;
+  gap: 6px;
+  justify-content: center;
+}
+
+.key {
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  height: 58px;
+  border-radius: 4px;
+  border: none;
+  background-color: var(--key-bg);
+  color: var(--key-text);
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  text-transform: uppercase;
+  touch-action: manipulation;
+  transition: background-color 0.2s ease, transform 0.08s ease;
+}
+
+.key:active {
+  background-color: var(--key-bg-active);
+  transform: scale(0.96);
+}
+
+.key.wide {
+  flex: 1.5;
+  font-size: 12px;
+}
+
+.key[data-state="correct"] {
+  background-color: var(--color-correct) !important;
+  color: #ffffff !important;
+}
+
+.key[data-state="present"] {
+  background-color: var(--color-present) !important;
+  color: #ffffff !important;
+}
+
+.key[data-state="absent"] {
+  background-color: var(--color-absent) !important;
+  color: #ffffff !important;
+  opacity: 0.65;
+}
+
+/* Modallar (Help, Stats, Settings) */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+  padding: 16px;
+  opacity: 1;
+  transition: opacity 0.2s ease;
+}
+
+.modal-overlay.hidden {
+  display: none;
+  opacity: 0;
+}
+
+.modal-card {
+  background-color: var(--modal-bg);
+  color: var(--text-primary);
+  border: 1px solid var(--modal-border);
+  border-radius: 12px;
+  width: 100%;
+  max-width: 480px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+  animation: modal-enter 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes modal-enter {
+  from { transform: translateY(20px) scale(0.96); opacity: 0; }
+  to { transform: translateY(0) scale(1); opacity: 1; }
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.modal-header h2 {
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 26px;
+  line-height: 1;
+  cursor: pointer;
+  color: var(--text-secondary);
+  transition: color 0.15s ease;
+}
+
+.close-btn:hover {
+  color: var(--text-primary);
+}
+
+.modal-body {
+  padding: 18px 20px;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.modal-body p {
+  margin-bottom: 12px;
+}
+
+.example-box {
+  margin: 18px 0;
+  padding: 14px;
+  background-color: var(--bg-secondary);
+  border-radius: 8px;
+  border: 1px solid var(--border-subtle);
+}
+
+.example-title {
+  font-size: 13px;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  margin-bottom: 10px;
+}
+
+.example-row {
+  margin-bottom: 14px;
+}
+
+.example-row:last-child {
+  margin-bottom: 0;
+}
+
+.mini-grid {
+  display: flex;
+  gap: 5px;
+  margin-bottom: 6px;
+}
+
+.mini-grid .tile {
+  width: 38px;
+  height: 38px;
+  font-size: 18px;
+}
+
+.divider {
+  border: none;
+  border-top: 1px solid var(--border-subtle);
+  margin: 16px 0;
+}
+
+.mode-info p {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+}
+
+.modal-footer {
+  padding: 14px 20px 20px 20px;
+  display: flex;
+  justify-content: center;
+}
+
+.primary-btn {
+  background-color: var(--color-correct);
+  color: #ffffff;
+  border: none;
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 700;
+  padding: 12px 30px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: opacity 0.15s ease, transform 0.1s ease;
+}
+
+.primary-btn:hover {
+  opacity: 0.9;
+}
+
+.primary-btn:active {
+  transform: scale(0.97);
+}
+
+/* Statistika Modal elementlari */
+.stats-overview {
+  display: flex;
+  justify-content: space-around;
+  margin-bottom: 22px;
+  text-align: center;
+}
+
+.stat-item {
+  flex: 1;
+}
+
+.stat-val {
+  font-size: 32px;
+  font-weight: 800;
+  line-height: 1.1;
+}
+
+.stat-label {
+  font-size: 11px;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-top: 4px;
+}
+
+.distribution-title {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+
+.guess-distribution {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 20px;
+}
+
+.dist-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.dist-num {
+  width: 14px;
+  text-align: right;
+  color: var(--text-secondary);
+}
+
+.dist-bar-wrap {
+  flex-grow: 1;
+  background-color: transparent;
+}
+
+.dist-bar {
+  background-color: var(--key-bg);
+  color: #ffffff;
+  padding: 3px 8px;
+  border-radius: 3px;
+  text-align: right;
+  min-width: 24px;
+  font-size: 12px;
+  font-weight: 700;
+  transition: width 0.4s ease;
+}
+
+.dist-bar.highlight {
+  background-color: var(--color-correct);
+}
+
+.stats-footer-panel {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 1px solid var(--border-subtle);
+  padding-top: 16px;
+  margin-top: 10px;
+}
+
+.countdown-section {
+  text-align: left;
+}
+
+.countdown-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  letter-spacing: 0.05em;
+}
+
+.countdown-val {
+  font-size: 24px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  margin-top: 2px;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.share-btn {
+  background-color: var(--color-correct);
+  color: #ffffff;
+  border: none;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  padding: 11px 18px;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.15s ease, transform 0.1s ease;
+}
+
+.share-btn:hover {
+  opacity: 0.9;
+}
+
+.share-btn:active {
+  transform: scale(0.96);
+}
+
+.play-again-btn {
+  background-color: #2e78d2;
+  color: #ffffff;
+  border: none;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 11px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: opacity 0.15s ease;
+}
+
+.play-again-btn.hidden {
+  display: none;
+}
+
+/* Sozlamalar (Settings) */
+.settings-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.setting-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.setting-text {
+  padding-right: 16px;
+}
+
+.setting-name {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.setting-desc {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-top: 2px;
+}
+
+/* Toggle Switch (iOS uslubidagi tugmacha) */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 48px;
+  height: 26px;
+  flex-shrink: 0;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: var(--switch-off);
+  transition: 0.25s ease;
+  border-radius: 26px;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 20px;
+  width: 20px;
+  left: 3px;
+  bottom: 3px;
+  background-color: #ffffff;
+  transition: 0.25s ease;
+  border-radius: 50%;
+}
+
+input:checked + .slider {
+  background-color: var(--switch-on);
+}
+
+input:checked + .slider:before {
+  transform: translateX(22px);
+}
+
+.about-section {
+  font-size: 12px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.about-section strong {
+  color: var(--text-primary);
+}
+
+.about-section a {
+  color: var(--color-correct);
+  text-decoration: none;
+}
+
+.about-section a:hover {
+  text-decoration: underline;
+}
+
+.credits {
+  margin-top: 10px;
+  font-size: 11px;
+}
+
+/* Kichik va katta ekranlarga moslashuvchanlik */
+@media (max-height: 650px) {
+  :root {
+    --header-height: 45px;
+  }
+  .game-title {
+    font-size: 20px;
+  }
+  #board {
+    width: 270px;
+    height: 324px;
+  }
+  .tile {
+    font-size: 24px;
+  }
+  .key {
+    height: 48px;
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 360px) {
+  .key {
+    font-size: 11px;
+    height: 52px;
+  }
+  .key.wide {
+    font-size: 10px;
+  }
+}

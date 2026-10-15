@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Wordle O‘zbekcha - So‘ztop O‘yini</title>
+  <meta name="description" content="Nyu-York Tayms (NYT) Wordle o'yinining o'zbekcha talqini. 5 harfli so'zni 6 ta urinishda toping!">
+  <meta name="theme-color" content="#121213">
+  
+  <!-- Favicon -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2220%22 fill=%22%23538d4e%22/><text y=%2268%22 font-size=%2260%22 font-weight=%22bold%22 font-family=%22sans-serif%22 fill=%22white%22 text-anchor=%22middle%22 x=%2250%22>W</text></svg>">
+  
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="game-container">
+    <!-- Yuqori qism (Header) -->
+    <header>
+      <div class="header-left">
+        <button id="help-btn" class="icon-btn" aria-label="Qanday o‘ynaladi" title="Qoidalar">
+          <svg viewBox="0 0 24 24" width="24" height="24">
+            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" fill="none"/>
+            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/>
+            <circle cx="12" cy="17" r="1" fill="currentColor"/>
+          </svg>
+        </button>
+      </div>
+
+      <div class="header-center">
+        <h1 class="game-title">WORDLE <span class="badge">UZ</span></h1>
+        <div id="mode-indicator" class="mode-label">Kunlik o‘yin</div>
+      </div>
+
+      <div class="header-right">
+        <button id="mode-toggle-btn" class="icon-btn" aria-label="Rejimni almashtirish" title="Kunlik / Erkin rejim">
+          <svg viewBox="0 0 24 24" width="22" height="22">
+            <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </button>
+        <button id="stats-btn" class="icon-btn" aria-label="Statistika" title="Statistika">
+          <svg viewBox="0 0 24 24" width="22" height="22">
+            <path d="M5 20v-6M12 20V4M19 20v-9" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+          </svg>
+        </button>
+        <button id="settings-btn" class="icon-btn" aria-label="Sozlamalar" title="Sozlamalar">
+          <svg viewBox="0 0 24 24" width="22" height="22">
+            <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2" fill="none"/>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" stroke="currentColor" stroke-width="2" fill="none"/>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Xabarnomalar maydoni (Toasts) -->
+    <div id="toast-container" class="toast-container" aria-live="assertive"></div>
+
+    <!-- O'yin kataklari maydoni (Board) -->
+    <main id="board-container">
+      <div id="board" role="grid" aria-label="So‘z kataklari">
+        <!-- 6 qator x 5 katak JS orqali yaratiladi -->
+      </div>
+    </main>
+
+    <!-- Virtual klaviatura (Keyboard) -->
+    <div id="keyboard" role="region" aria-label="Virtual klaviatura">
+      <!-- 3 qator klaviatura tugmalari JS orqali render qilinadi -->
+    </div>
+  </div>
+
+  <!-- MODAL: Qanday o'ynaladi (Help) -->
+  <div id="help-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="help-title">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h2 id="help-title">QANDAY O‘YNALADI?</h2>
+        <button class="close-btn" data-close="help-modal" aria-label="Yopish">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p><strong>6 ta urinishda</strong> yashiringan 5 harfli so‘zni toping.</p>
+        <p>Har bir taxmin haqiqiy <strong>5 harfli o‘zbekcha so‘z</strong> bo‘lishi lozim.</p>
+        <p>So‘zni kiritib, <strong>ENTER</strong> tugmasini bosing.</p>
+        <p>Har bir taxmindan so‘ng kataklar rangi harf qanchalik to‘g‘ri topilganligini ko‘rsatadi:</p>
+
+        <div class="example-box">
+          <div class="example-title"><strong>Misollar:</strong></div>
+          
+          <div class="example-row">
+            <div class="mini-grid">
+              <div class="tile correct">K</div>
+              <div class="tile">I</div>
+              <div class="tile">T</div>
+              <div class="tile">O</div>
+              <div class="tile">B</div>
+            </div>
+            <p><strong>K</strong> harfi yashirin so‘zda mavjud va <strong>to‘g‘ri o‘rinda</strong> joylashgan.</p>
+          </div>
+
+          <div class="example-row">
+            <div class="mini-grid">
+              <div class="tile">S</div>
+              <div class="tile present">A</div>
+              <div class="tile">L</div>
+              <div class="tile">O</div>
+              <div class="tile">M</div>
+            </div>
+            <p><strong>A</strong> harfi yashirin so‘zda bor, ammo <strong>boshqa o‘rinda</strong>.</p>
+          </div>
+
+          <div class="example-row">
+            <div class="mini-grid">
+              <div class="tile">B</div>
+              <div class="tile">A</div>
+              <div class="tile absent">H</div>
+              <div class="tile">O</div>
+              <div class="tile">R</div>
+            </div>
+            <p><strong>H</strong> harfi so‘zda <strong>umuman yo‘q</strong>.</p>
+          </div>
+        </div>
+
+        <hr class="divider">
+        <div class="mode-info">
+          <p>📅 <strong>Kunlik rejim:</strong> Har kuni yarim tunda barcha foydalanuvchilar uchun yagona yangi so‘z paydo bo‘ladi.</p>
+          <p>⚡ <strong>Erkin rejim:</strong> Istalgan vaqtda cheksiz yangi so‘zlar bilan mashq qilishingiz mumkin!</p>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="primary-btn" data-close="help-modal">O‘yinni boshlash</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: Statistika (Stats) -->
+  <div id="stats-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="stats-title">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h2 id="stats-title">STATISTIKA</h2>
+        <button class="close-btn" data-close="stats-modal" aria-label="Yopish">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="stats-overview">
+          <div class="stat-item">
+            <div class="stat-val" id="stat-played">0</div>
+            <div class="stat-label">O‘yinlar</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-val" id="stat-win-pct">0%</div>
+            <div class="stat-label">G‘alaba %</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-val" id="stat-cur-streak">0</div>
+            <div class="stat-label">Joriy seriya</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-val" id="stat-max-streak">0</div>
+            <div class="stat-label">Eng ko‘p seriya</div>
+          </div>
+        </div>
+
+        <h3 class="distribution-title">TAXMINLAR TAQSIMOTI</h3>
+        <div id="guess-distribution" class="guess-distribution">
+          <!-- 1-6 ta urinishlar gistogrammasi JS orqali to'ldiriladi -->
+        </div>
+
+        <div id="stats-footer-panel" class="stats-footer-panel">
+          <div class="countdown-section">
+            <div class="countdown-label">KEYINGI SO‘ZGACHA:</div>
+            <div id="countdown-timer" class="countdown-val">00:00:00</div>
+          </div>
+          <div class="action-buttons">
+            <button id="share-btn" class="share-btn">
+              <svg viewBox="0 0 24 24" width="20" height="20" style="margin-right: 6px;">
+                <circle cx="18" cy="5" r="3" fill="currentColor"/>
+                <circle cx="6" cy="12" r="3" fill="currentColor"/>
+                <circle cx="18" cy="19" r="3" fill="currentColor"/>
+                <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" stroke="currentColor" stroke-width="2"/>
+                <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" stroke="currentColor" stroke-width="2"/>
+              </svg>
+              ULASHISH
+            </button>
+            <button id="play-again-btn" class="play-again-btn hidden">
+              YANGI SO‘Z
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: Sozlamalar (Settings) -->
+  <div id="settings-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="settings-title">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h2 id="settings-title">SOZLAMALAR</h2>
+        <button class="close-btn" data-close="settings-modal" aria-label="Yopish">&times;</button>
+      </div>
+      <div class="modal-body settings-list">
+        <div class="setting-item">
+          <div class="setting-text">
+            <div class="setting-name">Qiyin rejim (Hard Mode)</div>
+            <div class="setting-desc">Topilgan har qanday maslahat keyingi taxminlarda ishlatilishi shart</div>
+          </div>
+          <label class="switch">
+            <input type="checkbox" id="hard-mode-toggle">
+            <span class="slider"></span>
+          </label>
+        </div>
+
+        <div class="setting-item">
+          <div class="setting-text">
+            <div class="setting-name">Qorong‘i mavzu (Dark Theme)</div>
+            <div class="setting-desc">Ko‘zni toliqtirmaydigan qorong‘i dizayn</div>
+          </div>
+          <label class="switch">
+            <input type="checkbox" id="dark-theme-toggle" checked>
+            <span class="slider"></span>
+          </label>
+        </div>
+
+        <div class="setting-item">
+          <div class="setting-text">
+            <div class="setting-name">Yuqori kontrast (High Contrast)</div>
+            <div class="setting-desc">Ranglarni osonroq ajratish uchun kontrast tuslar</div>
+          </div>
+          <label class="switch">
+            <input type="checkbox" id="high-contrast-toggle">
+            <span class="slider"></span>
+          </label>
+        </div>
+
+        <div class="setting-item">
+          <div class="setting-text">
+            <div class="setting-name">Tovush effektlari (Sound)</div>
+            <div class="setting-desc">Tugmalar bosilishi va g‘alaba musiqasi</div>
+          </div>
+          <label class="switch">
+            <input type="checkbox" id="sound-toggle" checked>
+            <span class="slider"></span>
+          </label>
+        </div>
+
+        <hr class="divider">
+
+        <div class="about-section">
+          <p><strong>Wordle O‘zbekcha</strong> – mashhur so‘z topish o‘yinining o‘zbek tilidagi talqini.</p>
+          <p>Loyiha 100% ochiq kodli bo‘lib, GitHub Pages orqali oson ishga tushirishga moslashtirilgan.</p>
+          <div class="credits">
+            <span>Versiya 1.0.0</span> &bull; 
+            <a href="https://github.com" target="_blank" rel="noopener">GitHub</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Skriptlar -->
+  <script src="words.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
