@@ -213,7 +213,7 @@ const VALID_WORDS = [
   "yamon", "yangi", "yaqin", "yaroq", "yelka", "yetar", "yetim", "yetuk",
   "yigit", "yoqim", "yorit", "yorug", "yoruq", "yovuz", "yugur", "yukli",
   "yurak", "yurti", "yusuf", "yutuq", "zafar", "zahar", "zamin", "zamon",
-  "zarar", "zarba", "zarif", "zarur", "zavqi", "zehni", "zohir"
+  "zarar", "zarba", "zarif", "zarur", "zavqi", "zehni", "zohir", "hujum"
 ];
 
 // Takrorlanmagan va toza 5 harfli so'zlarni shakllantirish
